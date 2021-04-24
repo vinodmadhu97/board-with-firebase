@@ -28,12 +28,34 @@ class _BoardAppHomeState extends State<BoardAppHome> {
   //connect to the firesore and retrieve the snapshot of data
   var dbData = FirebaseFirestore.instance.collection("board").snapshots();
 
+  TextEditingController nameEditingController;
+  TextEditingController titleEditingController;
+  TextEditingController descriptionEditingController;
+
+  @override
+  void initState() {
+
+    super.initState();
+
+    nameEditingController = TextEditingController();
+    titleEditingController = TextEditingController();
+    descriptionEditingController = TextEditingController();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Board App"),
         centerTitle: true,
+
+      ),
+
+      floatingActionButton: FloatingActionButton(
+         child: Icon(Icons.add_comment),
+        onPressed: (){
+           _showDialog(context);
+        },
 
       ),
 
@@ -99,5 +121,81 @@ class _BoardAppHomeState extends State<BoardAppHome> {
       },
     );
 
+  }
+
+  _showDialog(BuildContext context) async{
+    await showDialog(
+        context: context,builder: (context) => AlertDialog(
+          contentPadding: EdgeInsets.all(10),
+          content: Column(
+            children: [
+              Text("Please Fill Out the form"),
+              Expanded(
+                  child: TextField(
+                    autofocus: true,
+                    autocorrect: true,
+                    decoration: InputDecoration(
+                      labelText: "Your name"
+                      ),
+                    controller: nameEditingController,
+
+
+                    ),
+                  ),
+
+              Expanded(
+                child: TextField(
+                  autofocus: true,
+                  autocorrect: true,
+                  decoration: InputDecoration(
+                      labelText: "Title"
+                  ),
+                  controller: titleEditingController,
+
+
+                ),
+              ),
+
+              Expanded(
+                child: TextField(
+                  autofocus: true,
+                  autocorrect: true,
+                  decoration: InputDecoration(
+                      labelText: "Description"
+                  ),
+                  controller: descriptionEditingController,
+
+
+                ),
+              ),
+
+            ],
+          ),
+          actions: [
+            FlatButton(
+                onPressed: (){
+                  nameEditingController.clear();
+                  titleEditingController.clear();
+                  descriptionEditingController.clear();
+
+                  //removing dialog box
+                  Navigator.pop(context);
+                },
+                child: Text("Cancel")
+            ),
+            FlatButton(
+                onPressed: (){
+                  nameEditingController.clear();
+                  titleEditingController.clear();
+                  descriptionEditingController.clear();
+
+                  //removing dialog box
+                  Navigator.pop(context);
+                },
+                child: Text("Save")
+            )
+          ],
+        )
+    );
   }
 }
