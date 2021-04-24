@@ -25,12 +25,9 @@ class BoardAppHome extends StatefulWidget {
 }
 
 class _BoardAppHomeState extends State<BoardAppHome> {
-  
- var firestoreDb = FirebaseFirestore.instance.collection("board").snapshots();
+  //connect to the firesore and retrieve the snapshot of data
+  var dbData = FirebaseFirestore.instance.collection("board").snapshots();
 
-
-
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +38,7 @@ class _BoardAppHomeState extends State<BoardAppHome> {
       ),
 
       body: StreamBuilder(
-        stream:  FirebaseFirestore.instance.collection("board").snapshots(),
+        stream:  dbData,
         builder: (context,snapshot){
 
           if(!snapshot.hasData){
