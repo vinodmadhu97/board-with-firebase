@@ -1,6 +1,8 @@
+import 'package:board_app_firebase/ui/custom_card.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,9 +54,12 @@ class _BoardAppHomeState extends State<BoardAppHome> {
       ),
 
       floatingActionButton: FloatingActionButton(
-         child: Icon(Icons.add_comment),
+
+         child: Icon(FontAwesomeIcons.pen),
         onPressed: (){
            _showDialog(context);
+
+
         },
 
       ),
@@ -64,23 +69,15 @@ class _BoardAppHomeState extends State<BoardAppHome> {
         builder: (context,snapshot){
 
           if(!snapshot.hasData){
-            return CircularProgressIndicator();
-          }
-          if(snapshot.connectionState == ConnectionState.waiting){
             return Center(child: CircularProgressIndicator());
           }
+
 
           return ListView.builder(
             itemCount: snapshot.data.documents.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  leading: CircleAvatar(
-                    child: Text((index+1).toString()),
-                  ),
-                  title: Text(snapshot.data.documents[index]['title']),
-                  subtitle: Text(snapshot.data.documents[index]['description']),
-                );
-              },
+                return CustomCard(snapshot: snapshot.data, index: index);
+              }
           );
 
 
@@ -89,39 +86,7 @@ class _BoardAppHomeState extends State<BoardAppHome> {
     );
   }
 
-  Future getDataFromFireBase() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp();
 
-    return StreamBuilder(
-      stream:  FirebaseFirestore.instance.collection("board").snapshots(),
-      builder: (context,snapshot){
-
-        if(!snapshot.hasData){
-          return CircularProgressIndicator();
-        }
-        if(snapshot.connectionState == ConnectionState.waiting){
-          return Center(child: CircularProgressIndicator());
-        }
-
-        return ListView.builder(
-          itemCount: snapshot.data.documents.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              leading: CircleAvatar(
-                child: Text((index+1).toString()),
-              ),
-              title: Text(snapshot.data.documents[index]['title']),
-              subtitle: Text(snapshot.data.documents[index]['description']),
-            );
-          },
-        );
-
-
-      },
-    );
-
-  }
 
   _showDialog(BuildContext context) async{
     await showDialog(
@@ -185,12 +150,20 @@ class _BoardAppHomeState extends State<BoardAppHome> {
             ),
             FlatButton(
                 onPressed: (){
-                  nameEditingController.clear();
-                  titleEditingController.clear();
-                  descriptionEditingController.clear();
+                  if(titleEditingController.text.isNotEmpty && nameEditingController.text.isNotEmpty && descriptionEditingController.text.isNotEmpty){
+                    FirebaseFirestore.instance.collection("board").add({
+                      "name" : nameEditingController.text, "title" : titleEditingController.text,
+                      "description" : descriptionEditingController.text, "timeStamp" : new DateTime.now()
+                    }).then((value) {
+                      print(value.documentID);
+                      Navigator.pop(context);
+                      nameEditingController.clear();
+                      titleEditingController.clear();
+                      descriptionEditingController.clear();
 
-                  //removing dialog box
-                  Navigator.pop(context);
+
+                    }).catchError((error) => print(error));
+                  }
                 },
                 child: Text("Save")
             )
@@ -198,4 +171,6 @@ class _BoardAppHomeState extends State<BoardAppHome> {
         )
     );
   }
+
+
 }

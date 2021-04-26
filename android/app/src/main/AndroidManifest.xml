@@ -3,6 +3,7 @@
    <application
         android:label="board_app_firebase"
         android:icon="@mipmap/ic_launcher">
+
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
